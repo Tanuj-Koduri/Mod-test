@@ -1,55 +1,52 @@
-// Use latest C# features and nullable reference types
-#nullable enable
-
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
+// This file is auto-generated. Manual changes may be overwritten.
 
 namespace PimsApp
 {
-    // Use 'file' keyword to make the class internal to this file
     public partial class Home
     {
-        // Use readonly for fields that are set only in the constructor or at declaration
-        // Use XML documentation comments for better IntelliSense support
-        /// <summary>
-        /// The main form of the page.
-        /// </summary>
-        protected readonly HtmlForm form1 = null!;
+        // Use 'private' instead of 'protected' for better encapsulation
+        // Use 'readonly' for fields that are set only in the constructor
+        private readonly System.Web.UI.HtmlControls.HtmlForm form1;
 
-        /// <summary>
-        /// Label for displaying welcome message.
-        /// </summary>
-        protected readonly Label lblWelcome = null!;
+        // Use nullable reference types for better null handling
+        private System.Web.UI.WebControls.Label? lblWelcome { get; set; }
 
-        /// <summary>
-        /// Button for logging out.
-        /// </summary>
-        protected readonly Button btnLogout = null!;
+        // Use properties instead of fields for better encapsulation
+        public System.Web.UI.WebControls.Button? BtnLogout { get; private set; }
 
-        /// <summary>
-        /// Generic control for page title.
-        /// </summary>
-        protected readonly HtmlGenericControl pageTitle = null!;
+        // Use camelCase for private fields
+        private System.Web.UI.HtmlControls.HtmlGenericControl? pageTitle;
 
-        /// <summary>
-        /// Label for displaying success messages.
-        /// </summary>
-        protected readonly Label lblSucessMessage = null!;
+        // Use string interpolation for clearer string formatting
+        public System.Web.UI.WebControls.Label? LblSuccessMessage { get; private set; }
 
-        /// <summary>
-        /// Button for registering a complaint.
-        /// </summary>
-        protected readonly Button btnRegisterComplaint = null!;
+        // Use modern event handling syntax
+        public event EventHandler? RegisterComplaintClicked;
+        private System.Web.UI.WebControls.Button? btnRegisterComplaint;
 
-        /// <summary>
-        /// GridView for displaying complaints.
-        /// </summary>
-        protected readonly GridView gvComplaints = null!;
+        // Use a more modern grid control if possible, e.g., Telerik RadGrid
+        private System.Web.UI.WebControls.GridView? gvComplaints;
 
-        // Constructor to initialize fields (if needed)
+        // Add a constructor to initialize readonly fields
         public Home()
         {
-            // Initialize fields here if necessary
+            form1 = new System.Web.UI.HtmlControls.HtmlForm();
+        }
+
+        // Add methods to raise events
+        protected virtual void OnRegisterComplaintClicked(EventArgs e)
+        {
+            RegisterComplaintClicked?.Invoke(this, e);
+        }
+
+        // Add a method to populate the grid
+        public void PopulateComplaints(IEnumerable<Complaint> complaints)
+        {
+            if (gvComplaints != null)
+            {
+                gvComplaints.DataSource = complaints;
+                gvComplaints.DataBind();
+            }
         }
     }
 }
