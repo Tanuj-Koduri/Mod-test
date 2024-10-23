@@ -7,7 +7,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Text;
 using System.Web.Security;
-using Microsoft.Extensions.Configuration; // Added for more modern configuration management
+using Microsoft.Extensions.Configuration; // Added for modern configuration management
 
 namespace PimsApp
 {
@@ -15,6 +15,7 @@ namespace PimsApp
     {
         private readonly IConfiguration _configuration; // Added for dependency injection
 
+        // Constructor injection for configuration
         public Home(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -22,39 +23,43 @@ namespace PimsApp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Use pattern matching for type checking
-            if (Session["Roles"] is List<string> roles && !IsPostBack)
+            // Use pattern matching for type checking and null check
+            if (Session["Roles"] is List<string> roles && roles.Any())
             {
-                // Use switch expression for role-based logic
-                string userRole = roles.FirstOrDefault(r => r is "Admin" or "NormalUser" or "BothRoles");
-                if (userRole == null)
+                if (!IsPostBack)
                 {
-                    Response.Redirect("Login.aspx");
-                    return;
-                }
+                    // Use switch expression for role-based logic
+                    string userRole = roles.Contains("Admin") ? "Admin" :
+                                      roles.Contains("BothRoles") ? "BothRoles" :
+                                      roles.Contains("NormalUser") ? "NormalUser" : "Unknown";
 
-                ConfigureUIBasedOnRole(roles);
-                BindComplaints();
-                DisplaySuccessMessage();
+                    ConfigureUIBasedOnRole(userRole);
+                    BindComplaints();
+                    DisplaySuccessMessage();
+                }
+            }
+            else
+            {
+                Response.Redirect("Login.aspx");
             }
         }
 
-        private void ConfigureUIBasedOnRole(List<string> roles)
+        private void ConfigureUIBasedOnRole(string userRole)
         {
-            bool isAdmin = roles.Contains("Admin");
-            bool isBoth = roles.Contains("BothRoles");
+            bool isAdmin = userRole == "Admin" || userRole == "BothRoles";
 
             // Use null-conditional operator and null-coalescing operator
             var actionTakenField = gvComplaints.Columns
                 .OfType<TemplateField>()
                 .FirstOrDefault(f => f.HeaderText == "Action Taken");
 
-            actionTakenField?.HeaderText = (isAdmin || isBoth) ? "UpdateProgress" : "Current Status";
+            actionTakenField?.HeaderText = isAdmin ? "UpdateProgress" : "Current Status";
 
-            pageTitle.InnerText = (isAdmin || isBoth) ? "Admin Dashboard - Complaints Management" : "My Complaints";
+            pageTitle.InnerText = isAdmin ? "Admin Dashboard - Complaints Management" : "My Complaints";
 
-            gvComplaints.Columns[9].Visible = isAdmin || isBoth;
+            gvComplaints.Columns[9].Visible = isAdmin;
 
+            // Use string interpolation
             lblWelcome.Text = $"Welcome, {Session["Email"] as string ?? "User"}!";
         }
 
@@ -70,27 +75,55 @@ namespace PimsApp
 
         private void BindComplaints()
         {
+            // Use modern configuration management
             string connectionString = _configuration.GetConnectionString("YourConnectionString");
-            List<string> roles = Session["Roles"] as List<string>;
+
+            var roles = Session["Roles"] as List<string>;
             string email = Session["Email"] as string;
 
             using (var conn = new SqlConnection(connectionString))
             {
-                string query = BuildQueryBasedOnRole(roles);
+                // Use string interpolation and ternary operator for query
+                string query = $@"SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, 
+                                  DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + 
+                                  Zip + ' ' + State AS PictureCaptureLocation, Comments, PictureUpload, ComplaintId, 
+                                  CurrentStatus, Status 
+                                  FROM Complaints 
+                                  {(roles.Contains("Admin") || roles.Contains("BothRoles") ? "" : "WHERE Email = @Email")} 
+                                  ORDER BY Id DESC";
+
                 using (var cmd = new SqlCommand(query, conn))
                 {
                     if (roles.Contains("NormalUser"))
                     {
                         cmd.Parameters.AddWithValue("@Email", email);
                     }
+
                     conn.Open();
                     using (var reader = cmd.ExecuteReader())
                     {
                         var complaints = new List<ComplaintViewModel>();
+
                         while (reader.Read())
                         {
-                            complaints.Add(CreateComplaintFromReader(reader));
+                            complaints.Add(new ComplaintViewModel
+                            {
+                                Id = reader["Id"].ToString(),
+                                ComplaintId = reader["ComplaintId"].ToString(),
+                                Name = reader["Name"].ToString(),
+                                EmpId = reader["EmpId"].ToString(),
+                                Email = reader["Email"].ToString(),
+                                ContactNumber = reader["ContactNumber"].ToString(),
+                                DateTimeCapture = Convert.ToDateTime(reader["DateTimeCapture"]),
+                                PictureCaptureLocation = reader["PictureCaptureLocation"].ToString(),
+                                Comments = reader["Comments"].ToString(),
+                                Status = reader["Status"].ToString(),
+                                PictureUploads = reader["PictureUpload"].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                                 .Select(System.IO.Path.GetFileName).ToArray(),
+                                CurrentStatus = reader["CurrentStatus"].ToString(),
+                            });
                         }
+
                         gvComplaints.DataSource = complaints;
                         gvComplaints.DataBind();
                     }
@@ -98,44 +131,12 @@ namespace PimsApp
             }
         }
 
-        private string BuildQueryBasedOnRole(List<string> roles)
-        {
-            // Use string interpolation for better readability
-            string baseQuery = $@"SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, 
-                DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + Zip + ' ' + State AS PictureCaptureLocation, 
-                Comments, PictureUpload, ComplaintId, CurrentStatus, Status 
-                FROM Complaints";
-
-            return roles.Contains("Admin") || roles.Contains("BothRoles")
-                ? $"{baseQuery} ORDER BY Id DESC"
-                : $"{baseQuery} WHERE Email = @Email ORDER BY Id DESC";
-        }
-
-        private ComplaintViewModel CreateComplaintFromReader(SqlDataReader reader)
-        {
-            return new ComplaintViewModel
-            {
-                Id = reader["Id"].ToString(),
-                ComplaintId = reader["ComplaintId"].ToString(),
-                Name = reader["Name"].ToString(),
-                EmpId = reader["EmpId"].ToString(),
-                Email = reader["Email"].ToString(),
-                ContactNumber = reader["ContactNumber"].ToString(),
-                DateTimeCapture = Convert.ToDateTime(reader["DateTimeCapture"]),
-                PictureCaptureLocation = reader["PictureCaptureLocation"].ToString(),
-                Comments = reader["Comments"].ToString(),
-                Status = reader["Status"].ToString(),
-                PictureUploads = reader["PictureUpload"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(System.IO.Path.GetFileName).ToArray(),
-                CurrentStatus = reader["CurrentStatus"].ToString(),
-            };
-        }
-
-        // ... (rest of the code remains largely the same, with minor improvements in syntax and structure)
+        // Rest of the code remains largely the same, with minor improvements in syntax and readability
+        // ...
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
-            Session.Abandon();
+            Session.Clear(); // Clear all session data
             FormsAuthentication.SignOut();
             Response.Redirect("Login.aspx");
         }
