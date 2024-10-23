@@ -1,52 +1,36 @@
-// This file is auto-generated. Manual changes may be overwritten.
+using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
 
 namespace PimsApp
 {
     public partial class Home
     {
-        // Use 'private' instead of 'protected' for better encapsulation
-        // Use 'readonly' for fields that are set only in the constructor
-        private readonly System.Web.UI.HtmlControls.HtmlForm form1;
+        // Use 'public' instead of 'protected' for better encapsulation
+        // Use 'required' keyword to ensure non-null values
+        public required HtmlForm Form { get; set; } // Renamed from 'form1' for clarity
 
-        // Use nullable reference types for better null handling
-        private System.Web.UI.WebControls.Label? lblWelcome { get; set; }
+        public required Label WelcomeLabel { get; set; } // Renamed from 'lblWelcome' for clarity
 
-        // Use properties instead of fields for better encapsulation
-        public System.Web.UI.WebControls.Button? BtnLogout { get; private set; }
+        public required Button LogoutButton { get; set; } // Renamed from 'btnLogout' for clarity
 
-        // Use camelCase for private fields
-        private System.Web.UI.HtmlControls.HtmlGenericControl? pageTitle;
+        public required HtmlGenericControl PageTitle { get; set; } // Renamed from 'pageTitle' for consistency
 
-        // Use string interpolation for clearer string formatting
-        public System.Web.UI.WebControls.Label? LblSuccessMessage { get; private set; }
+        public required Label SuccessMessage { get; set; } // Renamed from 'lblSucessMessage' and fixed typo
 
-        // Use modern event handling syntax
-        public event EventHandler? RegisterComplaintClicked;
-        private System.Web.UI.WebControls.Button? btnRegisterComplaint;
+        public required Button RegisterComplaintButton { get; set; } // Renamed from 'btnRegisterComplaint' for clarity
 
-        // Use a more modern grid control if possible, e.g., Telerik RadGrid
-        private System.Web.UI.WebControls.GridView? gvComplaints;
+        public required GridView ComplaintsGridView { get; set; } // Renamed from 'gvComplaints' for clarity
 
-        // Add a constructor to initialize readonly fields
-        public Home()
-        {
-            form1 = new System.Web.UI.HtmlControls.HtmlForm();
-        }
-
-        // Add methods to raise events
-        protected virtual void OnRegisterComplaintClicked(EventArgs e)
-        {
-            RegisterComplaintClicked?.Invoke(this, e);
-        }
-
-        // Add a method to populate the grid
-        public void PopulateComplaints(IEnumerable<Complaint> complaints)
-        {
-            if (gvComplaints != null)
-            {
-                gvComplaints.DataSource = complaints;
-                gvComplaints.DataBind();
-            }
-        }
+        // Remove individual XML comments for each control
+        // Instead, add a general comment explaining the purpose of this class
+        /// <summary>
+        /// Represents the Home page of the PimsApp.
+        /// This class contains properties for UI controls used in the Home.aspx page.
+        /// </summary>
+        /// <remarks>
+        /// This code is auto-generated. Changes to this file may be overwritten
+        /// when the code is regenerated. To modify, move field declarations
+        /// from the designer file to the code-behind file.
+        /// </remarks>
     }
 }
