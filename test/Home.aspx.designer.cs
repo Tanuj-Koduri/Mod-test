@@ -5,19 +5,54 @@ namespace PimsApp
 {
     public partial class Home
     {
-        // Use 'public' instead of 'protected' for better encapsulation
-        public HtmlForm Form { get; set; } // Renamed from 'form1' for clarity
+        // Consider using ViewState or Session for storing user-specific data instead of protected fields
+        // protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+        public HtmlForm Form1 { get; set; } // Modernized: Changed to public property
 
-        public Label WelcomeLabel { get; set; } // Renamed from 'lblWelcome' for clarity
+        // protected global::System.Web.UI.WebControls.Label lblWelcome;
+        public Label LblWelcome { get; set; } // Modernized: Changed to public property with PascalCase naming
 
-        public Button LogoutButton { get; set; } // Renamed from 'btnLogout' for clarity
+        // protected global::System.Web.UI.WebControls.Button btnLogout;
+        public Button BtnLogout { get; set; } // Modernized: Changed to public property with PascalCase naming
 
-        public HtmlGenericControl PageTitle { get; set; } // Renamed from 'pageTitle' for consistency
+        // protected global::System.Web.UI.HtmlControls.HtmlGenericControl pageTitle;
+        public HtmlGenericControl PageTitle { get; set; } // Modernized: Changed to public property with PascalCase naming
 
-        public Label SuccessMessage { get; set; } // Renamed from 'lblSucessMessage' and fixed typo
+        // protected global::System.Web.UI.WebControls.Label lblSucessMessage;
+        public Label LblSuccessMessage { get; set; } // Modernized: Changed to public property and fixed typo in name
 
-        public Button RegisterComplaintButton { get; set; } // Renamed from 'btnRegisterComplaint' for clarity
+        // protected global::System.Web.UI.WebControls.Button btnRegisterComplaint;
+        public Button BtnRegisterComplaint { get; set; } // Modernized: Changed to public property with PascalCase naming
 
-        public GridView ComplaintsGridView { get; set; } // Renamed from 'gvComplaints' for clarity
+        // protected global::System.Web.UI.WebControls.GridView gvComplaints;
+        public GridView GvComplaints { get; set; } // Modernized: Changed to public property with PascalCase naming
+
+        // Modernized: Consider adding data annotations for validation
+        // [Required]
+        // public string UserInput { get; set; }
+
+        // Modernized: Consider implementing IDisposable interface for proper resource management
+        // public void Dispose()
+        // {
+        //     // Dispose of resources
+        // }
+
+        // Modernized: Consider adding async methods for improved performance
+        // public async Task LoadDataAsync()
+        // {
+        //     // Asynchronous data loading
+        // }
+
+        // Modernized: Consider adding security measures like CSRF protection
+        // private string csrfToken;
+
+        // Modernized: Consider implementing logging for better debugging and monitoring
+        // private readonly ILogger<Home> _logger;
+
+        // Modernized: Consider using dependency injection for better testability
+        // public Home(ILogger<Home> logger)
+        // {
+        //     _logger = logger;
+        // }
     }
 }
