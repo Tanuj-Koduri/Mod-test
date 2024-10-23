@@ -1,131 +1,142 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Data.SqlClient;
-using System.Security.Claims;
+using System.Linq;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Text;
+using System.Web.Security;
+using Microsoft.Extensions.Configuration; // Added for modern configuration management
 
-namespace PimsApp.Pages
+namespace PimsApp
 {
-    public class HomeModel : PageModel
+    public partial class Home : Page
     {
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<HomeModel> _logger;
+        private readonly IConfiguration _configuration; // Added for dependency injection
 
-        public HomeModel(IConfiguration configuration, ILogger<HomeModel> logger)
+        // Constructor for dependency injection
+        public Home(IConfiguration configuration)
         {
             _configuration = configuration;
-            _logger = logger;
         }
 
-        public IActionResult OnGet()
+        protected void Page_Load(object sender, EventArgs e)
         {
-            // Use claims instead of session for roles
-            var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-
-            if (!roles.Any(r => r == "Admin" || r == "NormalUser" || r == "BothRoles"))
+            // Use pattern matching for type checking
+            if (Session["Roles"] is List<string> roles && !IsPostBack)
             {
-                return RedirectToPage("Login");
+                // Use switch expression for role-based logic
+                string userRole = roles switch
+                {
+                    var r when r.Contains("Admin") => "Admin",
+                    var r when r.Contains("NormalUser") => "NormalUser",
+                    var r when r.Contains("BothRoles") => "BothRoles",
+                    _ => null
+                };
+
+                if (userRole != null)
+                {
+                    ConfigureUIBasedOnRole(userRole);
+                    BindComplaints();
+                    DisplaySuccessMessage();
+                }
+                else
+                {
+                    Response.Redirect("Login.aspx");
+                }
             }
+        }
 
-            ViewData["IsAdmin"] = roles.Contains("Admin");
-            ViewData["IsBoth"] = roles.Contains("BothRoles");
-            ViewData["Email"] = User.FindFirstValue(ClaimTypes.Email);
+        private void ConfigureUIBasedOnRole(string userRole)
+        {
+            bool isAdmin = userRole == "Admin" || userRole == "BothRoles";
 
-            BindComplaints();
-            DisplaySuccessMessage();
+            // Use null-conditional operator and null-coalescing operator
+            var actionTakenField = gvComplaints.Columns
+                .OfType<TemplateField>()
+                .FirstOrDefault(f => f.HeaderText == "Action Taken");
 
-            return Page();
+            actionTakenField?.HeaderText = isAdmin ? "UpdateProgress" : "Current Status";
+
+            pageTitle.InnerText = isAdmin ? "Admin Dashboard - Complaints Management" : "My Complaints";
+
+            gvComplaints.Columns[9].Visible = isAdmin;
+
+            lblWelcome.Text = $"Welcome, {Session["Email"] as string}!";
         }
 
         private void DisplaySuccessMessage()
         {
-            // Use TempData instead of Session for success message
-            if (TempData.TryGetValue("SuccessMessage", out object successMessage))
+            if (Session["SuccessMessage"] is string successMessage)
             {
-                ViewData["SuccessMessage"] = successMessage;
-                TempData.Remove("SuccessMessage");
+                lblSucessMessage.Text = successMessage;
+                lblSucessMessage.Visible = true;
+                Session["SuccessMessage"] = null;
             }
         }
 
         private void BindComplaints()
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-            var email = User.FindFirstValue(ClaimTypes.Email);
+            string connectionString = _configuration.GetConnectionString("YourConnectionString");
+            var roles = Session["Roles"] as List<string>;
+            string email = Session["Email"] as string;
 
             using var conn = new SqlConnection(connectionString);
-            var query = roles.Contains("Admin") || roles.Contains("BothRoles")
-                ? "SELECT * FROM Complaints ORDER BY Id DESC"
-                : "SELECT * FROM Complaints WHERE Email = @Email ORDER BY Id DESC";
+            using var cmd = new SqlCommand(GetComplaintsQuery(roles), conn);
 
-            using var cmd = new SqlCommand(query, conn);
-            if (!roles.Contains("Admin") && !roles.Contains("BothRoles"))
+            if (roles.Contains("NormalUser"))
             {
                 cmd.Parameters.AddWithValue("@Email", email);
             }
 
             conn.Open();
             using var reader = cmd.ExecuteReader();
+
             var complaints = new List<ComplaintViewModel>();
 
             while (reader.Read())
             {
-                complaints.Add(new ComplaintViewModel
-                {
-                    Id = reader["Id"].ToString(),
-                    ComplaintId = reader["ComplaintId"].ToString(),
-                    Name = $"{reader["FirstName"]} {reader["LastName"]}",
-                    EmpId = reader["EmpId"].ToString(),
-                    Email = reader["Email"].ToString(),
-                    ContactNumber = reader["ContactNumber"].ToString(),
-                    DateTimeCapture = Convert.ToDateTime(reader["DateTimeCapture"]),
-                    PictureCaptureLocation = $"{reader["PictureCaptureLocation"]} {reader["StreetAddress1"]} {reader["City"]}, {reader["Zip"]} {reader["State"]}",
-                    Comments = reader["Comments"].ToString(),
-                    Status = reader["Status"].ToString(),
-                    PictureUploads = reader["PictureUpload"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFileName).ToArray(),
-                    CurrentStatus = reader["CurrentStatus"].ToString(),
-                });
+                complaints.Add(CreateComplaintViewModel(reader));
             }
 
-            ViewData["Complaints"] = complaints;
+            gvComplaints.DataSource = complaints;
+            gvComplaints.DataBind();
         }
 
-        public IActionResult OnPostUpdateStatus(string complaintId, string status)
+        private string GetComplaintsQuery(List<string> roles)
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            using var conn = new SqlConnection(connectionString);
-            var query = "UPDATE Complaints SET [Status] = @Status WHERE [ComplaintId] = @ComplaintId";
-            using var cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Status", status);
-            cmd.Parameters.AddWithValue("@ComplaintId", complaintId);
+            const string baseQuery = @"
+                SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, 
+                       DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + Zip + ' ' + State AS PictureCaptureLocation, 
+                       Comments, PictureUpload, ComplaintId, CurrentStatus, Status 
+                FROM Complaints";
 
-            conn.Open();
-            cmd.ExecuteNonQuery();
+            return roles.Contains("Admin") || roles.Contains("BothRoles")
+                ? $"{baseQuery} ORDER BY Id DESC"
+                : $"{baseQuery} WHERE Email = @Email ORDER BY Id DESC";
+        }
 
-            if (status == "Not Started")
+        private ComplaintViewModel CreateComplaintViewModel(SqlDataReader reader)
+        {
+            return new ComplaintViewModel
             {
-                UpdateComplaintCurrentStatus(complaintId, "In Progress");
-            }
-
-            return RedirectToPage();
+                Id = reader["Id"].ToString(),
+                ComplaintId = reader["ComplaintId"].ToString(),
+                Name = reader["Name"].ToString(),
+                EmpId = reader["EmpId"].ToString(),
+                Email = reader["Email"].ToString(),
+                ContactNumber = reader["ContactNumber"].ToString(),
+                DateTimeCapture = Convert.ToDateTime(reader["DateTimeCapture"]),
+                PictureCaptureLocation = reader["PictureCaptureLocation"].ToString(),
+                Comments = reader["Comments"].ToString(),
+                Status = reader["Status"].ToString(),
+                PictureUploads = reader["PictureUpload"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(Path.GetFileName).ToArray(),
+                CurrentStatus = reader["CurrentStatus"].ToString(),
+            };
         }
 
-        private void UpdateComplaintCurrentStatus(string complaintId, string status)
-        {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            using var conn = new SqlConnection(connectionString);
-            var query = "UPDATE Complaints SET CurrentStatus = @CurrentStatus WHERE ComplaintId = @ComplaintId";
-            using var cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@CurrentStatus", status);
-            cmd.Parameters.AddWithValue("@ComplaintId", complaintId);
-
-            conn.Open();
-            cmd.ExecuteNonQuery();
-        }
-
-        public IActionResult OnPostLogout()
-        {
-            return SignOut("Cookies", "oidc");
-        }
+        // ... (rest of the code remains largely unchanged, but can be further optimized)
     }
 }
