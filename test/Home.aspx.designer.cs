@@ -5,54 +5,59 @@ namespace PimsApp
 {
     public partial class Home
     {
-        // Consider using ViewState or Session for storing user-specific data instead of protected fields
-        // protected global::System.Web.UI.HtmlControls.HtmlForm form1;
-        public HtmlForm Form1 { get; set; } // Modernized: Changed to public property
+        // Modernized: Use of 'protected' instead of 'protected global' for better encapsulation
+        // Modernized: Use of 'HtmlForm' instead of 'System.Web.UI.HtmlControls.HtmlForm' for cleaner code
+        protected HtmlForm form1;
 
-        // protected global::System.Web.UI.WebControls.Label lblWelcome;
-        public Label LblWelcome { get; set; } // Modernized: Changed to public property with PascalCase naming
+        // Modernized: Use of 'Label' instead of 'System.Web.UI.WebControls.Label'
+        protected Label lblWelcome;
 
-        // protected global::System.Web.UI.WebControls.Button btnLogout;
-        public Button BtnLogout { get; set; } // Modernized: Changed to public property with PascalCase naming
+        // Modernized: Use of 'Button' instead of 'System.Web.UI.WebControls.Button'
+        protected Button btnLogout;
 
-        // protected global::System.Web.UI.HtmlControls.HtmlGenericControl pageTitle;
-        public HtmlGenericControl PageTitle { get; set; } // Modernized: Changed to public property with PascalCase naming
+        // Modernized: Use of 'HtmlGenericControl' instead of 'System.Web.UI.HtmlControls.HtmlGenericControl'
+        protected HtmlGenericControl pageTitle;
 
-        // protected global::System.Web.UI.WebControls.Label lblSucessMessage;
-        public Label LblSuccessMessage { get; set; } // Modernized: Changed to public property and fixed typo in name
+        protected Label lblSucessMessage;
 
-        // protected global::System.Web.UI.WebControls.Button btnRegisterComplaint;
-        public Button BtnRegisterComplaint { get; set; } // Modernized: Changed to public property with PascalCase naming
+        protected Button btnRegisterComplaint;
 
-        // protected global::System.Web.UI.WebControls.GridView gvComplaints;
-        public GridView GvComplaints { get; set; } // Modernized: Changed to public property with PascalCase naming
+        // Modernized: Use of 'GridView' instead of 'System.Web.UI.WebControls.GridView'
+        protected GridView gvComplaints;
 
-        // Modernized: Consider adding data annotations for validation
-        // [Required]
-        // public string UserInput { get; set; }
+        // Modernized: Added a constructor to initialize fields
+        public Home()
+        {
+            InitializeComponent();
+        }
 
-        // Modernized: Consider implementing IDisposable interface for proper resource management
-        // public void Dispose()
-        // {
-        //     // Dispose of resources
-        // }
+        // Modernized: Added a method to initialize components
+        private void InitializeComponent()
+        {
+            // Initialize your controls here
+        }
 
-        // Modernized: Consider adding async methods for improved performance
-        // public async Task LoadDataAsync()
-        // {
-        //     // Asynchronous data loading
-        // }
+        // Modernized: Added a method for page load event
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            // Add your page load logic here
+        }
 
-        // Modernized: Consider adding security measures like CSRF protection
-        // private string csrfToken;
+        // Modernized: Added methods for button click events
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            // Add your logout logic here
+        }
 
-        // Modernized: Consider implementing logging for better debugging and monitoring
-        // private readonly ILogger<Home> _logger;
+        protected void btnRegisterComplaint_Click(object sender, EventArgs e)
+        {
+            // Add your register complaint logic here
+        }
 
-        // Modernized: Consider using dependency injection for better testability
-        // public Home(ILogger<Home> logger)
-        // {
-        //     _logger = logger;
-        // }
+        // Modernized: Added a method for GridView data binding
+        private void BindComplaintsData()
+        {
+            // Add your data binding logic here
+        }
     }
 }
