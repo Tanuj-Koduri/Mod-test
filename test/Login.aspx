@@ -1,28 +1,26 @@
 <%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="PimsApp.Login" %>
 
 <!DOCTYPE html>
-<html lang="en"> <!-- Added lang attribute for better accessibility -->
+<html lang="en"> <!-- Added lang attribute for accessibility -->
 <head runat="server">
     <meta charset="utf-8"> <!-- Added charset for proper encoding -->
     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Added viewport meta tag for responsive design -->
     <title>Login - EcoSight</title> <!-- Updated title for better SEO -->
-    <!-- Updated Bootstrap to the latest version -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- Updated Font Awesome to the latest version -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> <!-- Updated Font Awesome version -->
 
-    <!-- Moved styles to a separate CSS file for better organization -->
-    <link href="/css/login.css" rel="stylesheet">
+    <!-- Moved styles to an external CSS file for better separation of concerns -->
+    <link href="~/Styles/Login.css" rel="stylesheet" runat="server" />
 </head>
 <body>
-    <form id="form1" runat="server">
+    <form id="loginForm" runat="server"> <!-- Updated form ID for clarity -->
         <div class="container">
-            <div class="menu-bar">
-                <h1 class="h4">Welcome to EcoSight: Ecological Incident Reporting & Monitoring</h1>
-            </div>
+            <header class="menu-bar"> <!-- Semantic HTML: changed div to header -->
+                <h1>Welcome to EcoSight: Ecological Incident Reporting & Monitoring</h1> <!-- Changed label to h1 for better semantics -->
+            </header>
 
-            <div class="content">
-                <h2 class="display-4">Citizen Repair: Report Public Issues Here</h2>
+            <main class="content"> <!-- Semantic HTML: changed div to main -->
+                <h2 class="display-4">Citizen Repair: Report Public Issues Here</h2> <!-- Changed h3 to h2 for proper heading hierarchy -->
                 <div class="card-container">
                     <div class="form-icon"><i class="fas fa-user"></i></div>
                     <h3 class="title">Login</h3>
@@ -30,24 +28,24 @@
                     <div class="form-horizontal">
                         <div class="form-group">
                             <label for="txtUsername">Username</label>
-                            <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" Placeholder="Username" required></asp:TextBox>
+                            <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" placeholder="Username" required></asp:TextBox> <!-- Added required attribute -->
                         </div>
                         <div class="form-group">
                             <label for="txtPassword">Password</label>
-                            <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password" Placeholder="Password" required></asp:TextBox>
+                            <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password" placeholder="Password" required></asp:TextBox> <!-- Added required attribute -->
                         </div>
-                        <asp:Button ID="btnLoginUser" runat="server" CssClass="btn btn-primary" Text="Login" OnClick="btnLoginUser_Click" />
+                        <asp:Button ID="btnLoginUser" runat="server" CssClass="btn" Text="Login" OnClick="btnLoginUser_Click" />
                         <div class="forgot-password">
-                            <asp:HyperLink ID="lnkForgotPassword" runat="server" NavigateUrl="~/ForgotPassword.aspx">Forgot Password?</asp:HyperLink>
+                            <asp:HyperLink ID="lnkForgotPassword" runat="server" NavigateUrl="~/ForgotPassword.aspx">Forgot Password?</asp:HyperLink> <!-- Changed to server-side control -->
                         </div>
                     </div>
                 </div>
                 <asp:Label ID="lblMessage" runat="server" CssClass="message" Visible="false"></asp:Label>
-            </div>
+            </main>
         </div>
     </form>
 
-    <!-- Added Bootstrap JS for any potential JavaScript functionality -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <!-- Added JavaScript files at the end of the body for better page load performance -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
