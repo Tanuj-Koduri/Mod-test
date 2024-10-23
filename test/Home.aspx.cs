@@ -23,13 +23,11 @@ namespace PimsApp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Use strongly-typed session access
-            var roles = Session["Roles"] as List<string> ?? new List<string>();
-
             if (!IsPostBack)
             {
-                // Use pattern matching for more concise role checking
-                if (roles.Any(role => role is "Admin" or "NormalUser" or "BothRoles"))
+                // Use pattern matching to check roles
+                if (Session["Roles"] is List<string> roles && 
+                    roles.Any(r => r == "Admin" || r == "NormalUser" || r == "BothRoles"))
                 {
                     SetupUI(roles);
                     BindComplaints();
@@ -37,7 +35,7 @@ namespace PimsApp
                 }
                 else
                 {
-                    Response.Redirect("Login.aspx", true);
+                    Response.Redirect("Login.aspx");
                 }
             }
         }
@@ -47,21 +45,19 @@ namespace PimsApp
             bool isAdmin = roles.Contains("Admin");
             bool isBoth = roles.Contains("BothRoles");
 
-            // Use LINQ for more concise column finding
+            // Use null-conditional operator and string interpolation
             var actionTakenField = gvComplaints.Columns
                 .OfType<TemplateField>()
                 .FirstOrDefault(f => f.HeaderText == "Action Taken");
 
-            if (actionTakenField != null)
-            {
-                actionTakenField.HeaderText = (isAdmin || isBoth) ? "UpdateProgress" : "Current Status";
-            }
+            actionTakenField?.HeaderText = isAdmin || isBoth ? "UpdateProgress" : "Current Status";
 
-            pageTitle.InnerText = (isAdmin || isBoth) ? "Admin Dashboard - Complaints Management" : "My Complaints";
+            pageTitle.InnerText = isAdmin || isBoth ? "Admin Dashboard - Complaints Management" : "My Complaints";
+
             gvComplaints.Columns[9].Visible = isAdmin || isBoth;
 
-            // Use string interpolation for cleaner string formatting
-            lblWelcome.Text = $"Welcome, {Session["Email"]}!";
+            // Use null-conditional operator and string interpolation
+            lblWelcome.Text = $"Welcome, {Session["Email"] as string ?? "User"}!";
         }
 
         private void DisplaySuccessMessage()
@@ -76,31 +72,30 @@ namespace PimsApp
 
         private void BindComplaints()
         {
-            // Use configuration injection instead of ConfigurationManager
-            string connectionString = _configuration.GetConnectionString("YourConnectionString");
-            var roles = Session["Roles"] as List<string> ?? new List<string>();
-            string email = Session["Email"] as string;
+            var connectionString = _configuration.GetConnectionString("YourConnectionString");
+            var roles = Session["Roles"] as List<string>;
+            var email = Session["Email"] as string;
 
-            using (var conn = new SqlConnection(connectionString))
-            using (var cmd = new SqlCommand(GetComplaintsQuery(roles), conn))
+            using var conn = new SqlConnection(connectionString);
+            using var cmd = new SqlCommand(GetComplaintsQuery(roles), conn);
+
+            if (roles.Contains("NormalUser"))
             {
-                if (!roles.Contains("Admin") && !roles.Contains("BothRoles"))
-                {
-                    cmd.Parameters.AddWithValue("@Email", email);
-                }
-
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
-                {
-                    var complaints = new List<ComplaintViewModel>();
-                    while (reader.Read())
-                    {
-                        complaints.Add(CreateComplaintFromReader(reader));
-                    }
-                    gvComplaints.DataSource = complaints;
-                    gvComplaints.DataBind();
-                }
+                cmd.Parameters.AddWithValue("@Email", email);
             }
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+
+            var complaints = new List<ComplaintViewModel>();
+
+            while (reader.Read())
+            {
+                complaints.Add(CreateComplaintViewModel(reader));
+            }
+
+            gvComplaints.DataSource = complaints;
+            gvComplaints.DataBind();
         }
 
         private string GetComplaintsQuery(List<string> roles)
@@ -116,7 +111,7 @@ namespace PimsApp
                 : $"{baseQuery} WHERE Email = @Email ORDER BY Id DESC";
         }
 
-        private ComplaintViewModel CreateComplaintFromReader(SqlDataReader reader)
+        private ComplaintViewModel CreateComplaintViewModel(SqlDataReader reader)
         {
             return new ComplaintViewModel
             {
@@ -137,18 +132,16 @@ namespace PimsApp
             };
         }
 
-        // ... (rest of the code remains largely unchanged, but can be further optimized)
+        // Other methods remain largely unchanged, with minor improvements in syntax and null checks
+        // ...
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
             Session.Abandon();
             FormsAuthentication.SignOut();
-            Response.Redirect("Login.aspx", true);
+            Response.Redirect("Login.aspx");
         }
 
-        protected string GetUserRoleClass()
-        {
-            return (User.IsInRole("Admin") || User.IsInRole("BothRoles")) ? "admin" : string.Empty;
-        }
+        protected string GetUserRoleClass() => User.IsInRole("Admin") || User.IsInRole("BothRoles") ? "admin" : string.Empty;
     }
 }
