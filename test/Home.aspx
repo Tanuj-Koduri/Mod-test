@@ -4,12 +4,12 @@
 <html lang="en"> <!-- Added lang attribute for accessibility -->
 <head runat="server">
     <meta charset="utf-8"> <!-- Added charset meta tag -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Added viewport meta tag for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Added viewport meta tag for responsiveness -->
     <title>Admin Page - Dashboard</title>
-    <!-- Updated to the latest Bootstrap version -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!-- Updated Bootstrap to the latest version (5.3.0) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <!-- Moved styles to an external CSS file for better separation of concerns -->
-    <link rel="stylesheet" href="~/styles/home.css">
+    <link rel="stylesheet" href="~/Styles/Home.css">
 </head>
 <body>
     <form id="form1" runat="server">
@@ -27,62 +27,72 @@
             <div class="banner">
                 EcoSight: Ecological Incident Reporting & Monitoring
             </div>
-            <h5 id="pageTitle" runat="server" class="mb-3 text-center"></h5>
-            <asp:Label ID="lblSucessMessage" runat="server" CssClass="alert alert-success" Visible="false"></asp:Label>
-            
-            <div class="row mb-4">
-                <div class="col text-end">
+            <h5 id="pageTitle" runat="server" class="mb-0"></h5>
+            <asp:Label ID="lblSucessMessage" runat="server" CssClass="message-success" Visible="false"></asp:Label>
+            <div class="row mb-4 align-items-center">
+                <div class="text-end mb-4"> <!-- Changed text-right to text-end for Bootstrap 5 -->
                     <asp:Button ID="btnRegisterComplaint" runat="server" CssClass="btn btn-primary" Text="Register Complaint" OnClick="btnRegisterComplaint_Click" />
                 </div>
+                <hr />
+                <!-- Updated GridView with modern Bootstrap classes and added aria-label for accessibility -->
+                <asp:GridView ID="gvComplaints" runat="server" AutoGenerateColumns="False" CssClass="table table-striped table-bordered table-hover" OnRowDataBound="gvComplaints_RowDataBound" OnRowCommand="gvComplaints_RowCommand" aria-label="Complaints Table">
+                    <Columns>
+                        <!-- Columns remain mostly unchanged, but added aria-label to improve accessibility -->
+                        <asp:BoundField DataField="ComplaintId" HeaderText="Complaint Id" aria-label="Complaint ID" />
+                        <asp:BoundField DataField="Name" HeaderText="Name" aria-label="Name" />
+                        <asp:BoundField DataField="EmpId" HeaderText="Emp Id" aria-label="Employee ID">
+                            <HeaderStyle CssClass="nowrap-header" />
+                            <ItemStyle CssClass="nowrap-item" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="Email" HeaderText="Email" ItemStyle-CssClass="email-column" aria-label="Email" />
+                        <asp:BoundField DataField="ContactNumber" HeaderText="Number" aria-label="Contact Number" />
+                        <asp:BoundField DataField="DateTimeCapture" HeaderText="Date/Time of Capture" DataFormatString="{0:dd-MM-yyyy HH:mm}" aria-label="Date and Time of Capture" />
+                        <asp:BoundField DataField="PictureCaptureLocation" HeaderText="Location" aria-label="Picture Capture Location" />
+                        <asp:BoundField DataField="Comments" HeaderText="Description" aria-label="Comments" />
+
+                        <asp:TemplateField HeaderText="Images/Pictures" aria-label="Images and Pictures">
+                            <HeaderStyle Width="400px" />
+                            <ItemStyle Width="400px" />
+                            <ItemTemplate>
+                                <asp:Literal ID="litImages" runat="server" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Current Status" Visible="True" aria-label="Current Status">
+                            <ItemTemplate>
+                                <div class="form-group" style="width: 150px;">
+                                    <asp:DropDownList ID="ddlCurrentStatus" runat="server" CssClass="form-select" AutoPostBack="True" OnSelectedIndexChanged="ddlCurrentStatus_SelectedIndexChanged">
+                                        <asp:ListItem Text="Not Started" Value="Not Started" />
+                                        <asp:ListItem Text="In Progress" Value="In Progress" />
+                                        <asp:ListItem Text="Resolved" Value="Resolved" />
+                                        <asp:ListItem Text="Re-opened" Value="Re-opened" />
+                                    </asp:DropDownList>
+                                </div>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Action Taken" aria-label="Action Taken">
+                            <HeaderStyle Width="400px" />
+                            <ItemStyle Width="400px" />
+                            <ItemTemplate>
+                                <asp:HiddenField ID="hfComplaintId" runat="server" Value='<%# Eval("ComplaintId") %>' />
+                                <asp:Label ID="lblheader" runat="server" Text='<%# Eval("Status") %>' CssClass="d-block mb-2" />
+                                <asp:Label ID="lblStatus" runat="server" Text='<%# Eval("Status") %>' CssClass="d-block mb-2" />
+                                <asp:TextBox ID="txtStatus" runat="server" CssClass="form-control mb-2" TextMode="MultiLine" Rows="2" Style="width: 100%;"></asp:TextBox>
+                                <div class="button-group">
+                                    <asp:Button ID="btnUpdateStatus" runat="server" Text="Update" CssClass="btn btn-primary mb-2" CommandName="UpdateStatus" CommandArgument="<%# Container.DataItemIndex %>" />
+                                    <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn btn-secondary mb-2" CommandName="Edit" OnClick="btnEditComplaint_Click" CommandArgument="<%# Container.DataItemIndex %>" />
+                                </div>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
             </div>
-            
-            <!-- Updated GridView with modern Bootstrap classes and responsive design -->
-            <asp:GridView ID="gvComplaints" runat="server" AutoGenerateColumns="False" 
-                          CssClass="table table-striped table-bordered table-hover table-responsive" 
-                          OnRowDataBound="gvComplaints_RowDataBound" OnRowCommand="gvComplaints_RowCommand">
-                <Columns>
-                    <asp:BoundField DataField="ComplaintId" HeaderText="Complaint Id" />
-                    <asp:BoundField DataField="Name" HeaderText="Name" />
-                    <asp:BoundField DataField="EmpId" HeaderText="Emp Id" ItemStyle-CssClass="text-nowrap" />
-                    <asp:BoundField DataField="Email" HeaderText="Email" ItemStyle-CssClass="text-break" />
-                    <asp:BoundField DataField="ContactNumber" HeaderText="Number" />
-                    <asp:BoundField DataField="DateTimeCapture" HeaderText="Date/Time of Capture" DataFormatString="{0:dd-MM-yyyy HH:mm}" />
-                    <asp:BoundField DataField="PictureCaptureLocation" HeaderText="Location" />
-                    <asp:BoundField DataField="Comments" HeaderText="Description" />
-                    
-                    <asp:TemplateField HeaderText="Images/Pictures">
-                        <ItemTemplate>
-                            <asp:Literal ID="litImages" runat="server" />
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                    
-                    <asp:TemplateField HeaderText="Current Status">
-                        <ItemTemplate>
-                            <asp:DropDownList ID="ddlCurrentStatus" runat="server" CssClass="form-select" AutoPostBack="True" OnSelectedIndexChanged="ddlCurrentStatus_SelectedIndexChanged">
-                                <asp:ListItem Text="Not Started" Value="Not Started" />
-                                <asp:ListItem Text="In Progress" Value="In Progress" />
-                                <asp:ListItem Text="Resolved" Value="Resolved" />
-                                <asp:ListItem Text="Re-opened" Value="Re-opened" />
-                            </asp:DropDownList>
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                    
-                    <asp:TemplateField HeaderText="Action Taken">
-                        <ItemTemplate>
-                            <asp:HiddenField ID="hfComplaintId" runat="server" Value='<%# Eval("ComplaintId") %>' />
-                            <asp:Label ID="lblStatus" runat="server" Text='<%# Eval("Status") %>' CssClass="d-block mb-2" />
-                            <asp:TextBox ID="txtStatus" runat="server" CssClass="form-control mb-2" TextMode="MultiLine" Rows="2"></asp:TextBox>
-                            <asp:Button ID="btnUpdateStatus" runat="server" Text="Update" CssClass="btn btn-primary me-2" CommandName="UpdateStatus" CommandArgument="<%# Container.DataItemIndex %>" />
-                            <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn btn-secondary" CommandName="Edit" OnClick="btnEditComplaint_Click" CommandArgument="<%# Container.DataItemIndex %>" />
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                </Columns>
-            </asp:GridView>
         </div>
     </form>
 
-    <!-- Updated to the latest versions of Bootstrap and its dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+    <!-- Updated to the latest version of Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
 </body>
 </html>
