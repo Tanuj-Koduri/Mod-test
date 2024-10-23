@@ -5,7 +5,7 @@
 <head runat="server">
     <meta charset="utf-8"> <!-- Added charset meta tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Added viewport meta tag for responsiveness -->
-    <title>Login - EcoSight</title> <!-- Updated title for better SEO -->
+    <title>Home Page - EcoSight</title> <!-- Updated title to match the application name -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> <!-- Updated Font Awesome version -->
     <link href="~/Styles/Login.css" rel="stylesheet" runat="server"> <!-- Moved styles to a separate CSS file -->
@@ -18,7 +18,7 @@
             </div>
 
             <div class="content">
-                <h2 class="display-4">Citizen Repair: Report Public Issues Here</h2> <!-- Changed h3 to h2 for proper hierarchy -->
+                <h2 class="display-4">Citizen Repair: Report Public Issues Here</h2> <!-- Changed h3 to h2 for proper heading hierarchy -->
                 <div class="card-container">
                     <div class="form-icon"><i class="fas fa-user"></i></div>
                     <h3 class="title">Login</h3>
@@ -32,9 +32,9 @@
                             <label for="txtPassword">Password</label>
                             <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password" placeholder="Password" required></asp:TextBox> <!-- Added required attribute -->
                         </div>
-                        <asp:Button ID="btnLoginUser" runat="server" CssClass="btn btn-primary" Text="Login" OnClick="btnLoginUser_Click" /> <!-- Updated button class -->
+                        <asp:Button ID="btnLoginUser" runat="server" CssClass="btn btn-primary" Text="Login" OnClick="btnLoginUser_Click" /> <!-- Added Bootstrap button class -->
                         <div class="forgot-password">
-                            <asp:HyperLink ID="lnkForgotPassword" runat="server" NavigateUrl="~/ForgotPassword.aspx">Forgot Password?</asp:HyperLink> <!-- Changed to server-side control -->
+                            <asp:HyperLink ID="hlForgotPassword" runat="server" NavigateUrl="~/ForgotPassword.aspx">Forgot Password?</asp:HyperLink> <!-- Changed to server-side control -->
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
         </div>
     </form>
 
-    <!-- Added JavaScript files at the end for better performance -->
+    <!-- Added JavaScript files at the end of the body for better performance -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
