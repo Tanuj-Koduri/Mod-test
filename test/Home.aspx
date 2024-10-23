@@ -4,12 +4,12 @@
 <html lang="en"> <!-- Added lang attribute for accessibility -->
 <head runat="server">
     <meta charset="utf-8"> <!-- Added charset meta tag -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Added viewport meta tag for responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Added viewport meta tag for responsive design -->
     <title>Admin Page - Dashboard</title>
-    <!-- Updated to Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <!-- Moved styles to separate CSS file -->
-    <link rel="stylesheet" href="~/Content/styles.css">
+    <!-- Updated to the latest Bootstrap version -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!-- Moved styles to an external CSS file for better separation of concerns -->
+    <link rel="stylesheet" href="~/styles/home.css">
 </head>
 <body>
     <form id="form1" runat="server">
@@ -31,31 +31,31 @@
             <asp:Label ID="lblSucessMessage" runat="server" CssClass="alert alert-success" Visible="false"></asp:Label>
             
             <div class="row mb-4">
-                <div class="col-12 text-end">
+                <div class="col text-end">
                     <asp:Button ID="btnRegisterComplaint" runat="server" CssClass="btn btn-primary" Text="Register Complaint" OnClick="btnRegisterComplaint_Click" />
                 </div>
             </div>
-
+            
             <!-- Updated GridView with modern Bootstrap classes and responsive design -->
             <asp:GridView ID="gvComplaints" runat="server" AutoGenerateColumns="False" 
-                CssClass="table table-striped table-bordered table-hover table-responsive" 
-                OnRowDataBound="gvComplaints_RowDataBound" OnRowCommand="gvComplaints_RowCommand">
+                          CssClass="table table-striped table-bordered table-hover table-responsive" 
+                          OnRowDataBound="gvComplaints_RowDataBound" OnRowCommand="gvComplaints_RowCommand">
                 <Columns>
                     <asp:BoundField DataField="ComplaintId" HeaderText="Complaint Id" />
                     <asp:BoundField DataField="Name" HeaderText="Name" />
                     <asp:BoundField DataField="EmpId" HeaderText="Emp Id" ItemStyle-CssClass="text-nowrap" />
-                    <asp:BoundField DataField="Email" HeaderText="Email" ItemStyle-CssClass="email-column" />
+                    <asp:BoundField DataField="Email" HeaderText="Email" ItemStyle-CssClass="text-break" />
                     <asp:BoundField DataField="ContactNumber" HeaderText="Number" />
                     <asp:BoundField DataField="DateTimeCapture" HeaderText="Date/Time of Capture" DataFormatString="{0:dd-MM-yyyy HH:mm}" />
                     <asp:BoundField DataField="PictureCaptureLocation" HeaderText="Location" />
                     <asp:BoundField DataField="Comments" HeaderText="Description" />
-
+                    
                     <asp:TemplateField HeaderText="Images/Pictures">
                         <ItemTemplate>
                             <asp:Literal ID="litImages" runat="server" />
                         </ItemTemplate>
                     </asp:TemplateField>
-
+                    
                     <asp:TemplateField HeaderText="Current Status">
                         <ItemTemplate>
                             <asp:DropDownList ID="ddlCurrentStatus" runat="server" CssClass="form-select" AutoPostBack="True" OnSelectedIndexChanged="ddlCurrentStatus_SelectedIndexChanged">
@@ -66,7 +66,7 @@
                             </asp:DropDownList>
                         </ItemTemplate>
                     </asp:TemplateField>
-
+                    
                     <asp:TemplateField HeaderText="Action Taken">
                         <ItemTemplate>
                             <asp:HiddenField ID="hfComplaintId" runat="server" Value='<%# Eval("ComplaintId") %>' />
@@ -81,9 +81,8 @@
         </div>
     </form>
 
-    <!-- Updated to Bootstrap 5 and added defer attribute for performance -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous" defer></script>
-    <!-- Added custom JavaScript file -->
-    <script src="~/Scripts/custom.js" defer></script>
+    <!-- Updated to the latest versions of Bootstrap and its dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
 </body>
 </html>
