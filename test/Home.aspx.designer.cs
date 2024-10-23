@@ -1,43 +1,44 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+// This file is auto-generated and should not be manually edited.
+// Consider migrating to ASP.NET Core for new projects.
 
-namespace ModernPimsApp.Controllers
+#nullable enable // Enable nullable reference types for improved null safety
+
+namespace PimsApp
 {
-    public class HomeController : Controller
+    public partial class Home
     {
-        private readonly ILogger<HomeController> _logger;
+        // Use modern C# property syntax
+        protected global::System.Web.UI.HtmlControls.HtmlForm Form1 { get; private set; } = default!;
 
-        public HomeController(ILogger<HomeController> logger)
+        protected global::System.Web.UI.WebControls.Label LblWelcome { get; private set; } = default!;
+
+        protected global::System.Web.UI.WebControls.Button BtnLogout { get; private set; } = default!;
+
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl PageTitle { get; private set; } = default!;
+
+        protected global::System.Web.UI.WebControls.Label LblSuccessMessage { get; private set; } = default!;
+
+        protected global::System.Web.UI.WebControls.Button BtnRegisterComplaint { get; private set; } = default!;
+
+        protected global::System.Web.UI.WebControls.GridView GvComplaints { get; private set; } = default!;
+
+        // Consider adding a method to initialize controls if needed
+        private void InitializeControls()
         {
-            _logger = logger;
+            // Example: Set default values or register event handlers
+            BtnLogout.Click += (sender, e) => Logout();
+            BtnRegisterComplaint.Click += (sender, e) => RegisterComplaint();
         }
 
-        public IActionResult Index()
-        {
-            _logger.LogInformation("Home page visited");
-            return View();
-        }
-
-        public IActionResult Logout()
+        // Example methods (implement in code-behind file)
+        private void Logout()
         {
             // Implement logout logic
-            return RedirectToAction("Index", "Login");
         }
 
-        public IActionResult RegisterComplaint()
+        private void RegisterComplaint()
         {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult RegisterComplaint(ComplaintViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Process the complaint
-                return RedirectToAction("Index");
-            }
-            return View(model);
+            // Implement complaint registration logic
         }
     }
 }
