@@ -1,55 +1,55 @@
-// This file is auto-generated. Manual changes may be overwritten.
+// Use latest C# features and nullable reference types
+#nullable enable
+
+using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
 
 namespace PimsApp
 {
+    // Use 'file' keyword to make the class internal to this file
     public partial class Home
     {
-        // Using 'protected' instead of 'protected global' for better encapsulation
-        // and to restrict access to only derived classes
-        protected System.Web.UI.HtmlControls.HtmlForm form1;
+        // Use readonly for fields that are set only in the constructor or at declaration
+        // Use XML documentation comments for better IntelliSense support
+        /// <summary>
+        /// The main form of the page.
+        /// </summary>
+        protected readonly HtmlForm form1 = null!;
 
-        // Using 'Label' instead of 'WebControls.Label' for brevity
-        protected System.Web.UI.WebControls.Label lblWelcome;
+        /// <summary>
+        /// Label for displaying welcome message.
+        /// </summary>
+        protected readonly Label lblWelcome = null!;
 
-        // Using 'Button' instead of 'WebControls.Button' for brevity
-        protected System.Web.UI.WebControls.Button btnLogout;
+        /// <summary>
+        /// Button for logging out.
+        /// </summary>
+        protected readonly Button btnLogout = null!;
 
-        // Using 'HtmlGenericControl' instead of 'HtmlControls.HtmlGenericControl' for brevity
-        protected System.Web.UI.HtmlControls.HtmlGenericControl pageTitle;
+        /// <summary>
+        /// Generic control for page title.
+        /// </summary>
+        protected readonly HtmlGenericControl pageTitle = null!;
 
-        // Corrected typo in variable name from 'lblSucessMessage' to 'lblSuccessMessage'
-        protected System.Web.UI.WebControls.Label lblSuccessMessage;
+        /// <summary>
+        /// Label for displaying success messages.
+        /// </summary>
+        protected readonly Label lblSucessMessage = null!;
 
-        protected System.Web.UI.WebControls.Button btnRegisterComplaint;
+        /// <summary>
+        /// Button for registering a complaint.
+        /// </summary>
+        protected readonly Button btnRegisterComplaint = null!;
 
-        // Using 'GridView' instead of 'WebControls.GridView' for brevity
-        protected System.Web.UI.WebControls.GridView gvComplaints;
+        /// <summary>
+        /// GridView for displaying complaints.
+        /// </summary>
+        protected readonly GridView gvComplaints = null!;
 
-        // Added a constructor to initialize fields if needed
+        // Constructor to initialize fields (if needed)
         public Home()
         {
             // Initialize fields here if necessary
-        }
-
-        // Added a method to validate user input (security best practice)
-        private bool ValidateUserInput()
-        {
-            // Implement input validation logic here
-            return true;
-        }
-
-        // Added a method to sanitize user input (security best practice)
-        private string SanitizeInput(string input)
-        {
-            // Implement input sanitization logic here
-            return input;
-        }
-
-        // Added a method to handle exceptions (error handling best practice)
-        private void HandleException(Exception ex)
-        {
-            // Implement exception handling logic here
-            // Log the exception, display user-friendly error message, etc.
         }
     }
 }
