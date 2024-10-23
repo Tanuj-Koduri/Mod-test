@@ -23,49 +23,44 @@ namespace PimsApp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Use pattern matching for type checking and null check
-            if (Session["Roles"] is List<string> roles && roles.Any())
-            {
-                if (!IsPostBack)
-                {
-                    // Use switch expression for role-based logic
-                    string userRole = roles.Contains("Admin") ? "Admin" :
-                                      roles.Contains("BothRoles") ? "BothRoles" :
-                                      roles.Contains("NormalUser") ? "NormalUser" : "Unknown";
+            var roles = Session["Roles"] as List<string> ?? new List<string>(); // Null coalescing operator
 
-                    ConfigureUIBasedOnRole(userRole);
+            if (!IsPostBack)
+            {
+                if (roles.Any(r => new[] { "Admin", "NormalUser", "BothRoles" }.Contains(r))) // LINQ Any and Contains
+                {
+                    bool isAdmin = roles.Contains("Admin");
+                    bool isBoth = roles.Contains("BothRoles");
+
+                    var actionTakenField = gvComplaints.Columns
+                        .OfType<TemplateField>()
+                        .FirstOrDefault(f => f.HeaderText == "Action Taken");
+
+                    if (actionTakenField != null)
+                    {
+                        actionTakenField.HeaderText = (isAdmin || isBoth) ? "UpdateProgress" : "Current Status";
+                    }
+
+                    pageTitle.InnerText = (isAdmin || isBoth) ? "Admin Dashboard - Complaints Management" : "My Complaints";
+
+                    gvComplaints.Columns[9].Visible = roles.Contains("Admin") || roles.Contains("BothRoles");
+
+                    string email = Session["Email"] as string;
+                    lblWelcome.Text = $"Welcome, {email}!"; // String interpolation
+
                     BindComplaints();
                     DisplaySuccessMessage();
                 }
+                else
+                {
+                    Response.Redirect("Login.aspx");
+                }
             }
-            else
-            {
-                Response.Redirect("Login.aspx");
-            }
-        }
-
-        private void ConfigureUIBasedOnRole(string userRole)
-        {
-            bool isAdmin = userRole == "Admin" || userRole == "BothRoles";
-
-            // Use null-conditional operator and null-coalescing operator
-            var actionTakenField = gvComplaints.Columns
-                .OfType<TemplateField>()
-                .FirstOrDefault(f => f.HeaderText == "Action Taken");
-
-            actionTakenField?.HeaderText = isAdmin ? "UpdateProgress" : "Current Status";
-
-            pageTitle.InnerText = isAdmin ? "Admin Dashboard - Complaints Management" : "My Complaints";
-
-            gvComplaints.Columns[9].Visible = isAdmin;
-
-            // Use string interpolation
-            lblWelcome.Text = $"Welcome, {Session["Email"] as string ?? "User"}!";
         }
 
         private void DisplaySuccessMessage()
         {
-            if (Session["SuccessMessage"] is string successMessage)
+            if (Session["SuccessMessage"] is string successMessage && !string.IsNullOrEmpty(successMessage))
             {
                 lblSucessMessage.Text = successMessage;
                 lblSucessMessage.Visible = true;
@@ -75,22 +70,16 @@ namespace PimsApp
 
         private void BindComplaints()
         {
-            // Use modern configuration management
-            string connectionString = _configuration.GetConnectionString("YourConnectionString");
+            string connectionString = _configuration.GetConnectionString("YourConnectionString"); // Using IConfiguration
 
-            var roles = Session["Roles"] as List<string>;
+            var roles = Session["Roles"] as List<string> ?? new List<string>();
             string email = Session["Email"] as string;
 
             using (var conn = new SqlConnection(connectionString))
             {
-                // Use string interpolation and ternary operator for query
-                string query = $@"SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, 
-                                  DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + 
-                                  Zip + ' ' + State AS PictureCaptureLocation, Comments, PictureUpload, ComplaintId, 
-                                  CurrentStatus, Status 
-                                  FROM Complaints 
-                                  {(roles.Contains("Admin") || roles.Contains("BothRoles") ? "" : "WHERE Email = @Email")} 
-                                  ORDER BY Id DESC";
+                string query = roles.Contains("Admin") || roles.Contains("BothRoles")
+                    ? "SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + Zip + ' ' + State AS PictureCaptureLocation, Comments, PictureUpload, ComplaintId, CurrentStatus, Status FROM Complaints ORDER BY Id DESC"
+                    : "SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + Zip + ' ' + State AS PictureCaptureLocation, Comments, PictureUpload, ComplaintId, CurrentStatus, Status FROM Complaints WHERE Email = @Email ORDER BY Id DESC";
 
                 using (var cmd = new SqlCommand(query, conn))
                 {
@@ -119,7 +108,7 @@ namespace PimsApp
                                 Comments = reader["Comments"].ToString(),
                                 Status = reader["Status"].ToString(),
                                 PictureUploads = reader["PictureUpload"].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                                 .Select(System.IO.Path.GetFileName).ToArray(),
+                                    .Select(System.IO.Path.GetFileName).ToArray(),
                                 CurrentStatus = reader["CurrentStatus"].ToString(),
                             });
                         }
@@ -131,16 +120,24 @@ namespace PimsApp
             }
         }
 
-        // Rest of the code remains largely the same, with minor improvements in syntax and readability
-        // ...
+        // ... (rest of the code remains largely unchanged)
 
-        protected void btnLogout_Click(object sender, EventArgs e)
+        private void UpdateComplaintCurrentStatus(string complaintId, string status)
         {
-            Session.Clear(); // Clear all session data
-            FormsAuthentication.SignOut();
-            Response.Redirect("Login.aspx");
+            string connectionString = _configuration.GetConnectionString("YourConnectionString");
+            string query = "UPDATE Complaints SET CurrentStatus = @CurrentStatus WHERE ComplaintId = @ComplaintId";
+
+            using (var conn = new SqlConnection(connectionString))
+            using (var cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@CurrentStatus", status);
+                cmd.Parameters.AddWithValue("@ComplaintId", complaintId);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
         }
 
-        protected string GetUserRoleClass() => User.IsInRole("Admin") || User.IsInRole("BothRoles") ? "admin" : "";
+        // ... (remaining methods)
     }
 }
