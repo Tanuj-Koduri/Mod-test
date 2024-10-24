@@ -13,9 +13,9 @@ namespace PimsApp
 {
     public partial class Home : Page
     {
-        private readonly IConfiguration _configuration; // Added for dependency injection
+        // Use IConfiguration for modern configuration management
+        private readonly IConfiguration _configuration;
 
-        // Constructor for dependency injection
         public Home(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -23,46 +23,62 @@ namespace PimsApp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            // Use pattern matching for type checking
+            if (Session["Roles"] is List<string> roles && !IsPostBack)
             {
-                // Use pattern matching to check roles
-                if (Session["Roles"] is List<string> roles && 
-                    roles.Any(r => r == "Admin" || r == "NormalUser" || r == "BothRoles"))
+                // Use switch expression for role-based logic
+                string userRole = roles.FirstOrDefault(r => r is "Admin" or "NormalUser" or "BothRoles");
+                switch (userRole)
                 {
-                    SetupUI(roles);
-                    BindComplaints();
-                    DisplaySuccessMessage();
+                    case "Admin" or "BothRoles":
+                        SetupAdminView(roles);
+                        break;
+                    case "NormalUser":
+                        SetupNormalUserView();
+                        break;
+                    default:
+                        Response.Redirect("Login.aspx");
+                        return;
                 }
-                else
-                {
-                    Response.Redirect("Login.aspx");
-                }
+
+                SetWelcomeMessage();
+                BindComplaints();
+                DisplaySuccessMessage();
             }
         }
 
-        private void SetupUI(List<string> roles)
+        private void SetupAdminView(List<string> roles)
         {
-            bool isAdmin = roles.Contains("Admin");
-            bool isBoth = roles.Contains("BothRoles");
-
-            // Use null-conditional operator and string interpolation
+            // Use null-conditional operator and null-coalescing operator
             var actionTakenField = gvComplaints.Columns
                 .OfType<TemplateField>()
                 .FirstOrDefault(f => f.HeaderText == "Action Taken");
 
-            actionTakenField?.HeaderText = isAdmin || isBoth ? "UpdateProgress" : "Current Status";
+            actionTakenField?.HeaderText = roles.Contains("Admin") || roles.Contains("BothRoles") 
+                ? "UpdateProgress" 
+                : "Current Status";
 
-            pageTitle.InnerText = isAdmin || isBoth ? "Admin Dashboard - Complaints Management" : "My Complaints";
+            pageTitle.InnerText = "Admin Dashboard - Complaints Management";
+            gvComplaints.Columns[9].Visible = true;
+        }
 
-            gvComplaints.Columns[9].Visible = isAdmin || isBoth;
+        private void SetupNormalUserView()
+        {
+            pageTitle.InnerText = "My Complaints";
+            gvComplaints.Columns[9].Visible = false;
+        }
 
-            // Use null-conditional operator and string interpolation
-            lblWelcome.Text = $"Welcome, {Session["Email"] as string ?? "User"}!";
+        private void SetWelcomeMessage()
+        {
+            // Use string interpolation
+            lblWelcome.Text = $"Welcome, {Session["Email"] as string}!";
         }
 
         private void DisplaySuccessMessage()
         {
-            if (Session["SuccessMessage"] is string successMessage)
+            // Use null-conditional operator
+            string successMessage = Session["SuccessMessage"] as string;
+            if (!string.IsNullOrEmpty(successMessage))
             {
                 lblSucessMessage.Text = successMessage;
                 lblSucessMessage.Visible = true;
@@ -72,76 +88,71 @@ namespace PimsApp
 
         private void BindComplaints()
         {
-            var connectionString = _configuration.GetConnectionString("YourConnectionString");
-            var roles = Session["Roles"] as List<string>;
-            var email = Session["Email"] as string;
+            // Use modern configuration management
+            string connectionString = _configuration.GetConnectionString("YourConnectionString");
 
-            using var conn = new SqlConnection(connectionString);
-            using var cmd = new SqlCommand(GetComplaintsQuery(roles), conn);
+            List<string> roles = Session["Roles"] as List<string>;
+            string email = Session["Email"] as string;
 
-            if (roles.Contains("NormalUser"))
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                cmd.Parameters.AddWithValue("@Email", email);
+                // Use string interpolation and ternary operator
+                string query = roles.Contains("Admin") || roles.Contains("BothRoles")
+                    ? "SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + Zip + ' ' + State AS PictureCaptureLocation, Comments, PictureUpload, ComplaintId, CurrentStatus, Status FROM Complaints ORDER BY Id DESC"
+                    : "SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + Zip + ' ' + State AS PictureCaptureLocation, Comments, PictureUpload, ComplaintId, CurrentStatus, Status FROM Complaints WHERE Email = @Email ORDER BY Id DESC";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    if (roles.Contains("NormalUser"))
+                    {
+                        cmd.Parameters.AddWithValue("@Email", email);
+                    }
+
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        // Use LINQ to read data
+                        var complaints = new List<ComplaintViewModel>();
+                        while (reader.Read())
+                        {
+                            complaints.Add(new ComplaintViewModel
+                            {
+                                Id = reader["Id"].ToString(),
+                                ComplaintId = reader["ComplaintId"].ToString(),
+                                Name = reader["Name"].ToString(),
+                                EmpId = reader["EmpId"].ToString(),
+                                Email = reader["Email"].ToString(),
+                                ContactNumber = reader["ContactNumber"].ToString(),
+                                DateTimeCapture = Convert.ToDateTime(reader["DateTimeCapture"]),
+                                PictureCaptureLocation = reader["PictureCaptureLocation"].ToString(),
+                                Comments = reader["Comments"].ToString(),
+                                Status = reader["Status"].ToString(),
+                                PictureUploads = reader["PictureUpload"].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFileName).ToArray(),
+                                CurrentStatus = reader["CurrentStatus"].ToString(),
+                            });
+                        }
+
+                        gvComplaints.DataSource = complaints;
+                        gvComplaints.DataBind();
+                    }
+                }
             }
-
-            conn.Open();
-            using var reader = cmd.ExecuteReader();
-
-            var complaints = new List<ComplaintViewModel>();
-
-            while (reader.Read())
-            {
-                complaints.Add(CreateComplaintViewModel(reader));
-            }
-
-            gvComplaints.DataSource = complaints;
-            gvComplaints.DataBind();
         }
 
-        private string GetComplaintsQuery(List<string> roles)
-        {
-            const string baseQuery = @"
-                SELECT Id, FirstName + ' ' + LastName AS Name, EmpId, Email, ContactNumber, 
-                       DateTimeCapture, PictureCaptureLocation + ' ' + StreetAddress1 + ' ' + City + ', ' + Zip + ' ' + State AS PictureCaptureLocation, 
-                       Comments, PictureUpload, ComplaintId, CurrentStatus, Status 
-                FROM Complaints";
-
-            return roles.Contains("Admin") || roles.Contains("BothRoles")
-                ? $"{baseQuery} ORDER BY Id DESC"
-                : $"{baseQuery} WHERE Email = @Email ORDER BY Id DESC";
-        }
-
-        private ComplaintViewModel CreateComplaintViewModel(SqlDataReader reader)
-        {
-            return new ComplaintViewModel
-            {
-                Id = reader["Id"].ToString(),
-                ComplaintId = reader["ComplaintId"].ToString(),
-                Name = reader["Name"].ToString(),
-                EmpId = reader["EmpId"].ToString(),
-                Email = reader["Email"].ToString(),
-                ContactNumber = reader["ContactNumber"].ToString(),
-                DateTimeCapture = Convert.ToDateTime(reader["DateTimeCapture"]),
-                PictureCaptureLocation = reader["PictureCaptureLocation"].ToString(),
-                Comments = reader["Comments"].ToString(),
-                Status = reader["Status"].ToString(),
-                PictureUploads = reader["PictureUpload"].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                                                  .Select(System.IO.Path.GetFileName)
-                                                                  .ToArray(),
-                CurrentStatus = reader["CurrentStatus"].ToString(),
-            };
-        }
-
-        // Other methods remain largely unchanged, with minor improvements in syntax and null checks
-        // ...
+        // ... (rest of the code remains largely unchanged)
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            // Use modern authentication methods if available
             Session.Abandon();
             FormsAuthentication.SignOut();
             Response.Redirect("Login.aspx");
         }
 
-        protected string GetUserRoleClass() => User.IsInRole("Admin") || User.IsInRole("BothRoles") ? "admin" : string.Empty;
+        protected string GetUserRoleClass()
+        {
+            // Use pattern matching
+            return User.IsInRole("Admin") || User.IsInRole("BothRoles") ? "admin" : "";
+        }
     }
 }
