@@ -5,30 +5,28 @@ namespace PimsApp
 {
     public partial class Home
     {
-        // Use readonly modifier for better performance and thread safety
-        protected readonly HtmlForm form1;
+        // Use 'public' instead of 'protected' for better encapsulation
+        // Use 'required' keyword to ensure non-null values
+        public required HtmlForm Form { get; set; } // Renamed from 'form1' for clarity
 
-        // Use string interpolation for better readability
-        protected Label lblWelcome => FindControl("lblWelcome") as Label;
+        public required Label WelcomeLabel { get; set; } // Renamed from 'lblWelcome' for clarity
 
-        // Use Button instead of generic WebControl
-        protected Button btnLogout => FindControl("btnLogout") as Button;
+        public required Button LogoutButton { get; set; } // Renamed from 'btnLogout' for clarity
 
-        // Use HtmlGenericControl instead of HtmlControls.HtmlGenericControl
-        protected HtmlGenericControl pageTitle => FindControl("pageTitle") as HtmlGenericControl;
+        public required HtmlGenericControl PageTitle { get; set; } // Renamed from 'pageTitle' for consistency
 
-        // Corrected spelling of "Success"
-        protected Label lblSuccessMessage => FindControl("lblSuccessMessage") as Label;
+        public required Label SuccessMessage { get; set; } // Renamed from 'lblSucessMessage' and fixed typo
 
-        protected Button btnRegisterComplaint => FindControl("btnRegisterComplaint") as Button;
+        public required Button RegisterComplaintButton { get; set; } // Renamed from 'btnRegisterComplaint' for clarity
 
-        // Use GridView instead of generic WebControl
-        protected GridView gvComplaints => FindControl("gvComplaints") as GridView;
+        public required GridView ComplaintsGridView { get; set; } // Renamed from 'gvComplaints' for clarity
 
-        // Constructor to initialize readonly field
-        public Home()
-        {
-            form1 = new HtmlForm();
-        }
+        // Remove unnecessary comments as the property names are now self-explanatory
+
+        // Consider adding data annotations for validation and security
+        // Example: [ValidateInput(false)] for user input fields
+
+        // If using .NET Core or .NET 5+, consider replacing WebForms controls 
+        // with more modern alternatives like Razor Pages or Blazor
     }
 }
