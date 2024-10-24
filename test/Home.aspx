@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 <html lang="en"> <!-- Added lang attribute for accessibility -->
 <head runat="server">
-    <meta charset="utf-8"> <!-- Added charset meta tag -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Added viewport meta tag for responsiveness -->
+    <meta charset="utf-8"> <!-- Added charset for proper encoding -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Added viewport meta for responsiveness -->
     <title>Admin Page - Dashboard</title>
     <!-- Updated to Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <!-- Moved styles to a separate CSS file -->
-    <link rel="stylesheet" href="~/Content/styles.css">
+    <!-- Moved styles to separate CSS file for better organization -->
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     <form id="form1" runat="server">
@@ -28,29 +28,39 @@
                 EcoSight: Ecological Incident Reporting & Monitoring
             </div>
             <h5 id="pageTitle" runat="server" class="mb-3 text-center"></h5>
-            <asp:Label ID="lblSucessMessage" runat="server" CssClass="alert alert-success" Visible="false"></asp:Label>
+            <asp:Label ID="lblSuccessMessage" runat="server" CssClass="alert alert-success" Visible="false"></asp:Label>
             
             <div class="row mb-4">
-                <div class="col-12 text-end">
+                <div class="col text-end">
                     <asp:Button ID="btnRegisterComplaint" runat="server" CssClass="btn btn-primary" Text="Register Complaint" OnClick="btnRegisterComplaint_Click" />
                 </div>
             </div>
-            
-            <!-- Updated GridView with modern styling and accessibility improvements -->
+
+            <!-- Updated GridView with modern Bootstrap classes and responsive design -->
             <asp:GridView ID="gvComplaints" runat="server" AutoGenerateColumns="False" 
                           CssClass="table table-striped table-bordered table-hover" 
                           OnRowDataBound="gvComplaints_RowDataBound" 
                           OnRowCommand="gvComplaints_RowCommand"
-                          HeaderStyle-CssClass="table-dark"
-                          AlternatingRowStyle-CssClass="table-secondary"
-                          role="grid" aria-label="Complaints List">
+                          CellPadding="4" ForeColor="#333333" GridLines="None">
                 <Columns>
-                    <!-- ... (existing columns) ... -->
-                    
+                    <asp:BoundField DataField="ComplaintId" HeaderText="Complaint Id" />
+                    <asp:BoundField DataField="Name" HeaderText="Name" />
+                    <asp:BoundField DataField="EmpId" HeaderText="Emp Id" ItemStyle-CssClass="text-nowrap" />
+                    <asp:BoundField DataField="Email" HeaderText="Email" ItemStyle-CssClass="text-break" />
+                    <asp:BoundField DataField="ContactNumber" HeaderText="Number" />
+                    <asp:BoundField DataField="DateTimeCapture" HeaderText="Date/Time of Capture" DataFormatString="{0:dd-MM-yyyy HH:mm}" />
+                    <asp:BoundField DataField="PictureCaptureLocation" HeaderText="Location" />
+                    <asp:BoundField DataField="Comments" HeaderText="Description" />
+
+                    <asp:TemplateField HeaderText="Images/Pictures">
+                        <ItemTemplate>
+                            <asp:Literal ID="litImages" runat="server" />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+
                     <asp:TemplateField HeaderText="Current Status">
                         <ItemTemplate>
-                            <asp:DropDownList ID="ddlCurrentStatus" runat="server" CssClass="form-select" 
-                                              AutoPostBack="True" OnSelectedIndexChanged="ddlCurrentStatus_SelectedIndexChanged">
+                            <asp:DropDownList ID="ddlCurrentStatus" runat="server" CssClass="form-select" AutoPostBack="True" OnSelectedIndexChanged="ddlCurrentStatus_SelectedIndexChanged">
                                 <asp:ListItem Text="Not Started" Value="Not Started" />
                                 <asp:ListItem Text="In Progress" Value="In Progress" />
                                 <asp:ListItem Text="Resolved" Value="Resolved" />
@@ -58,17 +68,14 @@
                             </asp:DropDownList>
                         </ItemTemplate>
                     </asp:TemplateField>
-                    
+
                     <asp:TemplateField HeaderText="Action Taken">
                         <ItemTemplate>
                             <asp:HiddenField ID="hfComplaintId" runat="server" Value='<%# Eval("ComplaintId") %>' />
                             <asp:Label ID="lblStatus" runat="server" Text='<%# Eval("Status") %>' CssClass="d-block mb-2" />
                             <asp:TextBox ID="txtStatus" runat="server" CssClass="form-control mb-2" TextMode="MultiLine" Rows="2"></asp:TextBox>
-                            <asp:Button ID="btnUpdateStatus" runat="server" Text="Update" CssClass="btn btn-primary me-2" 
-                                        CommandName="UpdateStatus" CommandArgument="<%# Container.DataItemIndex %>" />
-                            <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn btn-secondary" 
-                                        CommandName="Edit" OnClick="btnEditComplaint_Click" 
-                                        CommandArgument="<%# Container.DataItemIndex %>" />
+                            <asp:Button ID="btnUpdateStatus" runat="server" Text="Update" CssClass="btn btn-primary mb-2" CommandName="UpdateStatus" CommandArgument="<%# Container.DataItemIndex %>" />
+                            <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn btn-secondary mb-2" CommandName="Edit" OnClick="btnEditComplaint_Click" CommandArgument="<%# Container.DataItemIndex %>" />
                         </ItemTemplate>
                     </asp:TemplateField>
                 </Columns>
@@ -77,8 +84,6 @@
     </form>
 
     <!-- Updated to Bootstrap 5 and added defer attribute for performance -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" 
-            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" 
-            crossorigin="anonymous" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous" defer></script>
 </body>
 </html>
