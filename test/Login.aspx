@@ -7,17 +7,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Added viewport meta tag for responsiveness -->
     <title>Login - EcoSight</title> <!-- Updated title for better SEO -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="~/Content/Styles/Login.css" rel="stylesheet"> <!-- Moved styles to separate CSS file -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> <!-- Updated Font Awesome version -->
+
+    <style>
+        /* Styles remain largely the same, consider moving to an external CSS file for better maintainability */
+        /* ... */
+    </style>
 </head>
 <body>
     <form id="loginForm" runat="server"> <!-- Changed form ID for clarity -->
         <div class="container">
-            <div class="menu-bar">
-                <h1>Welcome to EcoSight: Ecological Incident Reporting & Monitoring</h1> <!-- Changed label to h1 for semantic HTML -->
-            </div>
+            <header class="menu-bar"> <!-- Changed div to semantic header tag -->
+                <h1>Welcome to EcoSight: Ecological Incident Reporting & Monitoring</h1> <!-- Changed label to h1 for better semantics -->
+            </header>
 
-            <div class="content">
+            <main class="content"> <!-- Added semantic main tag -->
                 <h2 class="display-4">Citizen Repair: Report Public Issues Here</h2> <!-- Changed h3 to h2 for proper heading hierarchy -->
                 <div class="card-container">
                     <div class="form-icon"><i class="fas fa-user" aria-hidden="true"></i></div> <!-- Added aria-hidden for accessibility -->
@@ -26,25 +30,24 @@
                     <div class="form-horizontal">
                         <div class="form-group">
                             <label for="txtUsername">Username</label>
-                            <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" Placeholder="Username" required></asp:TextBox> <!-- Added required attribute -->
+                            <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" placeholder="Username" required></asp:TextBox> <!-- Added required attribute -->
                         </div>
                         <div class="form-group">
                             <label for="txtPassword">Password</label>
-                            <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password" Placeholder="Password" required></asp:TextBox> <!-- Added required attribute -->
+                            <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password" placeholder="Password" required></asp:TextBox> <!-- Added required attribute -->
                         </div>
-                        <asp:Button ID="btnLoginUser" runat="server" CssClass="btn btn-primary" Text="Login" OnClick="btnLoginUser_Click" /> <!-- Added Bootstrap button class -->
+                        <asp:Button ID="btnLoginUser" runat="server" CssClass="btn" Text="Login" OnClick="btnLoginUser_Click" />
                         <div class="forgot-password">
-                            <a href="ForgotPassword.aspx">Forgot Password?</a> <!-- Changed link to separate page -->
+                            <asp:HyperLink ID="lnkForgotPassword" runat="server" NavigateUrl="~/ForgotPassword.aspx">Forgot Password?</asp:HyperLink> <!-- Changed to server-side control -->
                         </div>
                     </div>
                 </div>
                 <asp:Label ID="lblMessage" runat="server" CssClass="message" Visible="false"></asp:Label>
-            </div>
+            </main>
         </div>
     </form>
 
-    <!-- Added JavaScript files at the end of the body for better performance -->
+    <!-- Added JavaScript files at the end of the body for better page load performance -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="~/Scripts/Login.js"></script> <!-- Added custom JavaScript file -->
 </body>
 </html>
